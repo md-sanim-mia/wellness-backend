@@ -1,3 +1,165 @@
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model User {
+//   id                        String         @id @default(uuid())
+//   firstName                 String
+//   lastName                 String
+//   email                     String         @unique
+//   password                  String
+//   age                       String
+//   hobbies                    String
+//   profilePic                String?        @default("")
+//   passwordChangedAt         DateTime?
+//   isVerified                Boolean        @default(false)
+//   isResetPassword           Boolean        @default(false)
+//   canResetPassword          Boolean        @default(false)
+//   isResentOtp               Boolean        @default(false)
+//   role                      UserRole       @default(USER)
+//   isSubscribed              Boolean        @default(false)
+//   planExpiration            DateTime?
+//   createdAt                 DateTime       @default(now())
+//   updatedAt                 DateTime       @updatedAt
+//   resetPasswordOTP          String?
+//   resetPasswordOTPExpiresAt DateTime?
+//   Notifications             Notification[]
+//   Profile                   Profile?
+//   Subscription              Subscription?
+
+//   @@map("users")
+// }
+
+// model Plan {
+//   id            String         @id @default(uuid())
+//   planName      String
+//   amount        Float
+//   currency      String?
+//   interval      Interval       @default(month)
+//   intervalCount Int
+//   freeTrialDays Int?
+//   productId     String
+//   priceId       String
+//   active        Boolean
+//   description   String?
+//   features      Json?
+//   createdAt     DateTime       @default(now())
+//   updatedAt     DateTime       @updatedAt
+//   Subscription  Subscription[]
+  
+//   @@map("plans")
+// }
+
+// model Subscription {
+//   id              String        @id @default(uuid())
+//   userId          String        @unique
+//   planId          String
+//   startDate       DateTime
+//   endDate         DateTime?
+//   amount          Float
+//   stripePaymentId String        @unique
+//   paymentStatus   PaymentStatus @default(PENDING)
+//   createdAt       DateTime      @default(now())
+//   updatedAt       DateTime      @updatedAt
+//   plan            Plan          @relation(fields: [planId], references: [id], onDelete: Cascade)
+//   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@map("subscriptions")
+// }
+
+// model Blog {
+//   id          String   @id @default(uuid())
+//   title       String
+//   description String
+//   image       String
+//   category    String
+//   views       Int      @default(0)
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+// }
+
+// model Profile {
+//   id          String    @id @default(uuid())
+//   userId      String    @unique
+//   birthDate   DateTime?
+//   createdAt   DateTime  @default(now())
+//   updatedAt   DateTime  @updatedAt
+//   batch       String?
+//   course      String
+//   department  String?
+//   institution String?
+//   year        String
+//   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+
+// model OtpModel {
+//   id          String   @id @default(uuid())
+//   email       String
+//   code        String
+//   isVerified  Boolean @default(false)
+//   generatedAt DateTime @default(now())
+//   expiresAt   DateTime
+// }
+
+
+// model Notification {
+//   id        String           @id @default(uuid())
+//   userId    String
+//   type      NotificationType
+//   message   String
+//   isRead    Boolean          @default(false)
+//   createdAt DateTime         @default(now())
+//   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+// enum NotificationType {
+//   SUBMISSION
+//   FEEDBACK
+//   REMINDER
+//   SYSTEM
+// }
+
+// enum SubmissionStatus {
+//   SUBMITTED
+//   EVALUATED
+//   COMPLETED
+// }
+
+
+// enum Interval {
+//   lifetime
+//   week
+//   month
+//   year
+// }
+
+// enum PaymentStatus {
+//   PENDING
+//   COMPLETED
+//   CANCELED
+//   REFUNDED
+// }
+
+// enum Status {
+//   PROCESSING
+//   COMPLETED
+//   FAILED
+// }
+
+// enum UserRole {
+//   USER
+//   ADMIN
+//   SUPER_ADMIN
+// }
+
+// This is your Prisma schema file
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,115 +169,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                        String         @id @default(uuid())
-  firstName                 String
-  lastName                 String
-  email                     String         @unique
-  password                  String
-  age                       String
-  hobbies                    String
-  profilePic                String?        @default("")
-  passwordChangedAt         DateTime?
-  isVerified                Boolean        @default(false)
-  isResetPassword           Boolean        @default(false)
-  canResetPassword          Boolean        @default(false)
-  isResentOtp               Boolean        @default(false)
-  role                      UserRole       @default(USER)
-  isSubscribed              Boolean        @default(false)
-  planExpiration            DateTime?
-  createdAt                 DateTime       @default(now())
-  updatedAt                 DateTime       @updatedAt
-  resetPasswordOTP          String?
-  resetPasswordOTPExpiresAt DateTime?
-  Notifications             Notification[]
-  Profile                   Profile?
-  Subscription              Subscription?
-
-  @@map("users")
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+  SELLER
+  SPECIALIST
 }
 
-model Plan {
-  id            String         @id @default(uuid())
-  planName      String
-  amount        Float
-  currency      String?
-  interval      Interval       @default(month)
-  intervalCount Int
-  freeTrialDays Int?
-  productId     String
-  priceId       String
-  active        Boolean
-  description   String?
-  features      Json?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  Subscription  Subscription[]
-  
-  @@map("plans")
+enum Gender {
+  MALE
+  FEMALE
+  CUSTOM
 }
 
-model Subscription {
-  id              String        @id @default(uuid())
-  userId          String        @unique
-  planId          String
-  startDate       DateTime
-  endDate         DateTime?
-  amount          Float
-  stripePaymentId String        @unique
-  paymentStatus   PaymentStatus @default(PENDING)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  plan            Plan          @relation(fields: [planId], references: [id], onDelete: Cascade)
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("subscriptions")
+enum CategoryType {
+  SUBSCRIPTIONS
+  CONSULTATION
+  SERVICE
+  PRODUCT
 }
 
-model Blog {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  image       String
-  category    String
-  views       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+  CANCELED
 }
 
-model Profile {
-  id          String    @id @default(uuid())
-  userId      String    @unique
-  birthDate   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  batch       String?
-  course      String
-  department  String?
-  institution String?
-  year        String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CUSTOM
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+  OUT_FOR_DELIVERY
 }
 
-
-model OtpModel {
-  id          String   @id @default(uuid())
-  email       String
-  code        String
-  isVerified  Boolean @default(false)
-  generatedAt DateTime @default(now())
-  expiresAt   DateTime
+enum Interval {
+  lifetime
+  week
+  month
+  year
 }
 
+enum StoreStatus {
+  ONLINE
+  OFFLINE
+}
 
-model Notification {
-  id        String           @id @default(uuid())
-  userId    String
-  type      NotificationType
-  message   String
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum ConsultationType {
+  VIDEO
+  AUDIO
+  CHAT
+  IN_PERSON
 }
 
 enum NotificationType {
@@ -131,29 +247,430 @@ enum SubmissionStatus {
   COMPLETED
 }
 
-
-enum Interval {
-  lifetime
-  week
-  month
-  year
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  CANCELED
-  REFUNDED
-}
-
 enum Status {
   PROCESSING
   COMPLETED
   FAILED
 }
 
-enum UserRole {
-  USER
-  ADMIN
-  SUPER_ADMIN
+// Models
+model User {
+  id                        String            @id @default(uuid())
+  firstName                 String
+  lastName                  String
+  email                     String            @unique
+  password                  String
+  profilePic                String?           @default("")
+  passwordChangedAt         DateTime?
+  isVerified                Boolean           @default(false)
+  isResetPassword           Boolean           @default(false)
+  canResetPassword          Boolean           @default(false)
+  isResentOtp               Boolean           @default(false)
+  role                      UserRole          @default(USER)
+  isSubscribed              Boolean           @default(false)
+  planExpiration            DateTime?
+  resetPasswordOTP          String?
+  resetPasswordOTPExpiresAt DateTime?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+
+  // Relations
+  Profile           Profile?
+  Notifications     Notification[]
+  Subscription      Subscription?
+  stores            Store[]
+  specialists       Specialist[]
+  orders            Order[]
+  shippingAddresses ShippingAddress[]
+  conversations     Conversation[]    @relation("ConversationParticipants")
+  sentMessages      Message[]         @relation("SentMessages")
+  receivedMessages  Message[]         @relation("ReceivedMessages")
+  aiChatBots        AIChatBot[]
+
+  @@map("users")
+}
+
+model Profile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  phone       String?
+  gender      Gender?
+  homeAddress String?
+  officeAddress String?
+  birthDate   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Plan {
+  id            String         @id @default(uuid())
+  planName      String
+  amount        Float
+  currency      String?
+  interval      Interval       @default(month)
+  intervalCount Int
+  freeTrialDays Int?
+  productId     String?
+  priceId       String?
+  active        Boolean        @default(true)
+  description   String?
+  features      Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  Subscription Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id              String        @id @default(uuid())
+  userId          String        @unique
+  planId          String
+  startDate       DateTime
+  endDate         DateTime?
+  amount          Float
+  stripePaymentId String        @unique
+  paymentStatus   PaymentStatus @default(PENDING)
+  description     String?
+  benefitsIncluded String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Blog {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  image       String
+  category    String
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blogs")
+}
+
+model OtpModel {
+  id          String   @id @default(uuid())
+  email       String
+  code        String
+  isVerified  Boolean  @default(false)
+  generatedAt DateTime @default(now())
+  expiresAt   DateTime
+
+  @@map("otps")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String?
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Category {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  type        CategoryType
+  comment     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  stores        Store[]
+  products      Product[]
+  services      Service[]
+  consultations Consultation[]
+
+  @@map("categories")
+}
+
+model Store {
+  id           String      @id @default(uuid())
+  userId       String
+  categoryId   String
+  name         String
+  location     String?
+  tags         String[]
+  description  String?
+  logo         String?
+  banner       String?
+  phone        String?
+  email        String?
+  facebookUrl  String?
+  instagramUrl String?
+  youtubeUrl   String?
+  status       StoreStatus @default(OFFLINE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      Category       @relation(fields: [categoryId], references: [id])
+  specialists   Specialist[]
+  coupons       Coupon[]
+  products      Product[]
+  services      Service[]
+  consultations Consultation[]
+
+  @@map("stores")
+}
+
+model Specialist {
+  id             String   @id @default(uuid())
+  storeId        String
+  userId         String
+  serviceTypeId  String
+  firstName      String
+  lastName       String
+  title          String?
+  email          String
+  gender         Gender?
+  bio            String?
+  available      Boolean  @default(true)
+  rating         String?
+  experience     String?
+  status         String?
+  specialistTime String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  store       Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceType ServiceType @relation(fields: [serviceTypeId], references: [id])
+  services    Service[]
+
+  @@map("specialists")
+}
+
+model ServiceType {
+  id         String       @id @default(uuid())
+  name       String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  // Relations
+  specialists Specialist[]
+  services    Service[]
+
+  @@map("service_types")
+}
+
+model Service {
+  id            String   @id @default(uuid())
+  storeId       String
+  categoryId    String
+  serviceTypeId String
+  specialistId  String
+  name          String
+  profilePic    String?
+  price         Float
+  description   String?
+  duration      String?
+  subCategoryId String?
+  startTime     String?
+  endTime       String?
+  tags          String[]
+  totalSlot     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  store       Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category    Category    @relation(fields: [categoryId], references: [id])
+  serviceType ServiceType @relation(fields: [serviceTypeId], references: [id])
+  specialist  Specialist  @relation(fields: [specialistId], references: [id])
+
+  @@map("services")
+}
+
+model Consultation {
+  id               String            @id @default(uuid())
+  storeId          String
+  categoryId       String
+  name             String
+  profilePic       String?
+  price            Float
+  description      String?
+  duration         String?
+  experiences      Int?
+  consultationTime String?
+  title            String?
+  type             ConsultationType?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relations
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@map("consultations")
+}
+
+model Coupon {
+  id                 String       @id @default(uuid())
+  storeId            String
+  couponCode         String       @unique
+  discountType       DiscountType
+  discount           Int
+  minimumOrderAmount Int?
+  maximumOrderAmount Int?
+  limitForSingleUser Int?
+  startDate          DateTime
+  expireDate         DateTime
+  startTime          String?
+  expireTime         String?
+  tags               String[]
+  barcode            String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  // Relations
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@map("coupons")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  storeId       String
+  categoryId    String
+  name          String
+  image         String?
+  price         Float
+  description   String?
+  subCategoryId String?
+  type          String?
+  stockQuantity Int      @default(0)
+  tags          String[]
+  barcode       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+  orders   Order[]
+
+  @@map("products")
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  userId        String
+  productId     String
+  quantity      Int
+  price         Float
+  paymentMethod String?
+  orderStatus   OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  shippingId    String?       @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product         Product          @relation(fields: [productId], references: [id])
+  shippingAddress ShippingAddress? @relation(fields: [shippingId], references: [id])
+
+  @@map("orders")
+}
+
+model ShippingAddress {
+  id         String   @id @default(uuid())
+  userId     String
+  fullName   String
+  country    String
+  phone      String
+  city       String
+  state      String?
+  postalCode String
+  address    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order?
+
+  @@map("shipping_addresses")
+}
+
+model Conversation {
+  id           String   @id @default(uuid())
+  participants String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  users    User[]    @relation("ConversationParticipants")
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String
+  messages       String
+  senderId       String
+  receiverId     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model AIMessage {
+  id         String   @id @default(uuid())
+  messagesId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+aiChatbot AIChatBot[]
+  @@map("ai_messages")
+}
+
+model AIChatBot {
+  id         String   @id @default(uuid())
+  userId     String
+  messagesId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+
+  aimessage AIMessage @relation(fields: [messagesId],references: [id],onDelete:  Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_chatbots")
 }
