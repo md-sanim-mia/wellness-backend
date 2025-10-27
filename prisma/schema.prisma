@@ -221,6 +221,14 @@ enum StoreStatus {
   ONLINE
   OFFLINE
 }
+enum shopStatus {
+  PENDING     // Store created but waiting for admin approval
+  APPROVED    // Store approved and active on the platform
+  REJECTED    // Store rejected by admin
+  SUSPENDED   // Temporarily disabled due to policy violations or inactivity
+  CLOSED      // Permanently closed by owner or admin
+}
+
 
 enum DiscountType {
   PERCENTAGE
@@ -390,6 +398,56 @@ model Notification {
   @@map("notifications")
 }
 
+// model Category {
+//   id          String       @id @default(uuid())
+//   name        String
+//   description String?
+//   type        CategoryType
+//   comment     String?
+//   createdAt   DateTime     @default(now())
+//   updatedAt   DateTime     @updatedAt
+
+//   // Relations
+//   stores        Store[]
+//   products      Product[]
+//   services      Service[]
+//   consultations Consultation[]
+
+//   @@map("categories")
+// }
+
+// model Store {
+//   id           String      @id @default(uuid())
+//   userId       String
+//   categoryId   String
+//   name         String
+//   location     String?
+//   tags         String[]
+//   description  String?
+//   logo         String?
+//   banner       String?
+//   phone        String?
+//   email        String?
+//   facebookUrl  String?
+//   instagramUrl String?
+//   youtubeUrl   String?
+//    StoreStatus       shopStatus @default(PENDING)
+//   status       StoreStatus @default(OFFLINE)
+//   createdAt    DateTime    @default(now())
+//   updatedAt    DateTime    @updatedAt
+
+//   // Relations
+//   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   category      Category       @relation(fields: [categoryId], references: [id])
+//   specialists   Specialist[]
+//   coupons       Coupon[]
+//   products      Product[]
+//   services      Service[]
+//   consultations Consultation[]
+
+//   @@map("stores")
+// }
+
 model Category {
   id          String       @id @default(uuid())
   name        String
@@ -400,18 +458,30 @@ model Category {
   updatedAt   DateTime     @updatedAt
 
   // Relations
-  stores        Store[]
-  products      Product[]
-  services      Service[]
-  consultations Consultation[]
+  storeCategories StoreCategory[]
+  products        Product[]
+  services        Service[]
+  consultations   Consultation[]
 
   @@map("categories")
+}
+
+model StoreCategory {
+  id          String   @id @default(uuid())
+  storeId     String
+  categoryId  String
+  createdAt   DateTime @default(now())
+
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, categoryId])
+  @@map("store_categories")
 }
 
 model Store {
   id           String      @id @default(uuid())
   userId       String
-  categoryId   String
   name         String
   location     String?
   tags         String[]
@@ -423,18 +493,19 @@ model Store {
   facebookUrl  String?
   instagramUrl String?
   youtubeUrl   String?
-  status       StoreStatus @default(OFFLINE)
+  shopStatus   shopStatus @default(PENDING)  // For approval flow
+  status       StoreStatus @default(OFFLINE)  // For online/offline
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
   // Relations
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category      Category       @relation(fields: [categoryId], references: [id])
-  specialists   Specialist[]
-  coupons       Coupon[]
-  products      Product[]
-  services      Service[]
-  consultations Consultation[]
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeCategories StoreCategory[]  // Many-to-many with Category
+  specialists     Specialist[]
+  coupons         Coupon[]
+  products        Product[]
+  services        Service[]
+  consultations   Consultation[]
 
   @@map("stores")
 }

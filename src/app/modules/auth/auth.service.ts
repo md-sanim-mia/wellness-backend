@@ -127,8 +127,6 @@ const googleLogin = async (idToken: string) => {
         email: googleUserData.email,
         firstName: googleUserData.name,
         lastName: googleUserData.name,
-        age: "",
-        hobbies:"",
         profilePic: googleUserData.picture,
         password: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
       }
@@ -304,8 +302,6 @@ const appleLogin = async (identityToken: string) => {
         email: appleUserData.email,
         firstName: appleUserData?.name || "Apple User",
         lastName: appleUserData?.name || "Apple User",
-        age:"",
-        hobbies:"",
         profilePic: "", // Apple doesn't provide profile picture
         password: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
         isVerified: true
@@ -1153,8 +1149,6 @@ const getMe = async (email: string) => {
       id: true,
       firstName:true,
       lastName: true,
-      age:true,
-      hobbies:true,
       email: true,
       profilePic: true,
       role: true,

@@ -23,8 +23,6 @@ export const seedSuperAdmin = async () => {
     data: {
       firstName: "Super",
       lastName:"Admin",
-      age:"",
-      hobbies:"",
       email,
       password: hashedPassword,
       role: "SUPER_ADMIN",
