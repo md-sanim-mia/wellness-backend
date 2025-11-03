@@ -36,7 +36,7 @@ const loginUser = async (email: string, password: string) => {
     profilePic: user.profilePic,
     role: user.role,
     isVerified: user.isVerified,
-     isSubscribed:user.isSubscribed
+    isSubscribed:user.isSubscribed
   };
 
   // Check if user is not active
