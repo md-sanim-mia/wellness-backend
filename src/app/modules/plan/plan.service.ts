@@ -312,7 +312,7 @@ export const updatePlan = async (planId: string, payload: Partial<Plan>) => {
   let newPriceId: string | null = null;
   let oldPriceId: string | null = null;
   let stripePriceCreated = false;
-  let productIdToUse: string;
+  let productIdToUse: string | null=null
 
   try {
     console.log("=== Update Plan Start ===");
@@ -329,6 +329,9 @@ export const updatePlan = async (planId: string, payload: Partial<Plan>) => {
     oldPriceId = existingPlan.priceId;
     productIdToUse = existingPlan.productId;
 
+    if (typeof productIdToUse !== "string") {
+  throw new AppError(status.BAD_REQUEST, "Invalid product ID");
+}
     // Step 2: Check if Stripe product exists, create if missing
     try {
       await stripe.products.retrieve(productIdToUse);
@@ -578,6 +581,39 @@ const getPlanById = async (planId: string) => {
 };
 
 // // Delete Plan
+// const deletePlan = async (planId: string) => {
+//   return await prisma.$transaction(async (tx) => {
+//     // Step 1: Find the plan record in the database
+//     const plan = await tx.plan.findUnique({
+//       where: { id: planId },
+//     });
+
+//     if (!plan) {
+//       throw new Error(`Plan with ID ${planId} not found`);
+//     }
+
+//     if (!plan.productId) {
+//   throw new AppError(status.BAD_REQUEST, "Plan does not have a valid productId");
+// }
+
+
+//     // Step 2: Deactivate the price in Stripe
+//     await stripe.prices.update(plan.priceId, { active: false });
+
+//     // Step 3: Deactivate the product in Stripe
+//     await stripe.products.update(plan.productId, { active: false });
+
+//     // Step 4: Delete the plan record in the database
+//     await tx.plan.delete({
+//       where: { id: planId },
+//     });
+
+//     return {
+//       message: `Plan with ID ${planId} archived and deleted successfully`,
+//     };
+//   });
+// };
+
 const deletePlan = async (planId: string) => {
   return await prisma.$transaction(async (tx) => {
     // Step 1: Find the plan record in the database
@@ -586,19 +622,47 @@ const deletePlan = async (planId: string) => {
     });
 
     if (!plan) {
-      throw new Error(`Plan with ID ${planId} not found`);
+      throw new AppError(status.NOT_FOUND, `Plan with ID ${planId} not found`);
     }
 
-    // Step 2: Deactivate the price in Stripe
-    await stripe.prices.update(plan.priceId, { active: false });
+    // Step 2: Safely deactivate the price in Stripe (if available)
+    if (plan.priceId) {
+      try {
+        await stripe.prices.update(plan.priceId, { active: false });
+        console.log(`✅ Deactivated Stripe price: ${plan.priceId}`);
+      } catch (err: any) {
+        if (err.code === "resource_missing") {
+          console.warn(`⚠️ Stripe price ${plan.priceId} not found`);
+        } else {
+          console.error("❌ Failed to deactivate Stripe price:", err);
+        }
+      }
+    } else {
+      console.warn(`⚠️ No priceId found for plan ${planId}`);
+    }
 
-    // Step 3: Deactivate the product in Stripe
-    await stripe.products.update(plan.productId, { active: false });
+    // Step 3: Safely deactivate the product in Stripe (if available)
+    if (plan.productId) {
+      try {
+        await stripe.products.update(plan.productId, { active: false });
+        console.log(`✅ Deactivated Stripe product: ${plan.productId}`);
+      } catch (err: any) {
+        if (err.code === "resource_missing") {
+          console.warn(`⚠️ Stripe product ${plan.productId} not found`);
+        } else {
+          console.error("❌ Failed to deactivate Stripe product:", err);
+        }
+      }
+    } else {
+      console.warn(`⚠️ No productId found for plan ${planId}`);
+    }
 
     // Step 4: Delete the plan record in the database
     await tx.plan.delete({
       where: { id: planId },
     });
+
+    console.log(`🗑️ Plan ${planId} deleted successfully`);
 
     return {
       message: `Plan with ID ${planId} archived and deleted successfully`,

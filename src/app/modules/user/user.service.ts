@@ -130,8 +130,6 @@ const updateUserProfileIntoDB = async (userId: string, payload: Partial<any>) =>
       id: true,
       firstName: true,
       lastName:true,
-      age:true,
-      hobbies:true,
       email: true,
       profilePic: true,
       role: true,
